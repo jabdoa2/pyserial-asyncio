@@ -113,6 +113,7 @@ class SerialTransport(asyncio.Transport):
             # Attempt to send it right away first
             try:
                 n = self._serial.write(data)
+                print("Writing {} bytes directly. Wrote {}. Msg: {}".format(len(data), n, data.decode()))
             except serial.SerialException as exc:
                 self._fatal_error(exc, 'Fatal write error on serial transport')
                 return
@@ -121,8 +122,11 @@ class SerialTransport(asyncio.Transport):
             assert n >= 0 < len(data)
             data = data[n:]
             self._ensure_writer()
+        else:
+            print("Writing {} bytes into buffer. Msg: {}".format(len(data), data.decode()))
 
         self._write_buffer.append(data)
+        print("Buffer: {}".format(str(self._write_buffer)))
         self._maybe_pause_protocol()
 
     def can_write_eof(self):
@@ -242,6 +246,7 @@ class SerialTransport(asyncio.Transport):
 
         try:
             n = self._serial.write(data)
+            print("Writing {} bytes delayed. Wrote {}. Msg: {}".format(len(data), n, data.decode()))
         except (BlockingIOError, InterruptedError):
             self._write_buffer.append(data)
         except serial.SerialException as exc:
