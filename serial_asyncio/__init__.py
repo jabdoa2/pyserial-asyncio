@@ -114,6 +114,14 @@ class SerialTransport(asyncio.Transport):
             try:
                 n = self._serial.write(data)
                 print("Writing {} bytes directly. Wrote {}. Msg: {}".format(len(data), n, data.decode()))
+                # hack because of pyserial bug
+                if os.name == "nt":
+                    import win32
+                    if win32.GetLastError() == win32.ERROR_IO_PENDING:
+                        print("Fixing windows bug")
+                        n = len(data)
+                    else:
+                        print("NOT PENDING")
             except serial.SerialException as exc:
                 self._fatal_error(exc, 'Fatal write error on serial transport')
                 return
@@ -247,6 +255,14 @@ class SerialTransport(asyncio.Transport):
         try:
             n = self._serial.write(data)
             print("Writing {} bytes delayed. Wrote {}. Msg: {}".format(len(data), n, data.decode()))
+            # hack because of pyserial bug
+            if os.name == "nt":
+                import win32
+                if win32.GetLastError() == win32.ERROR_IO_PENDING:
+                    print("Fixing windows bug")
+                    n = len(data)
+                else:
+                    print("NOT PENDING")
         except (BlockingIOError, InterruptedError):
             self._write_buffer.append(data)
         except serial.SerialException as exc:
