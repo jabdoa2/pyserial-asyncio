@@ -294,7 +294,6 @@ class SerialTransport(asyncio.Transport):
 
         def _remove_writer(self):
             if self._has_writer:
-                self._loop.remove_writer(self._serial.fd)
                 self._has_writer = False
 
     else:
